@@ -5,6 +5,7 @@ var merge = require('../object-assign');
 var CSSTranslate = require('../CSSTranslate');
 var Swipe = require('react-easy-swipe');
 var Thumbs = require('./Thumbs');
+var window = require('../windowFacade');
 
 // react-swipe was compiled using babel
 Swipe = Swipe.default;

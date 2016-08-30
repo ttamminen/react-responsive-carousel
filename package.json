@@ -25,7 +25,10 @@
   },
   "scripts": {
     "start": "node --harmony ./node_modules/gulp/bin/gulp",
-    "test": "jest",
+    "jest": "jest --verbose",
+    "test": "mocha \"src/**/*-test.js\" --compilers js:babel-core/register",
+    "test-watch": "npm test -- --watch",
+    "coverage": "babel-node ./node_modules/.bin/babel-istanbul cover _mocha -- \"src/**/*-test.js\" && babel-istanbul check-coverage",
     "prebuild": "npm test",
     "build": "babel ./src -d lib --ignore '__tests__' && gulp styles:package",
     "prepublish-to-npm": "git pull && npm run build && git commit -am 'Prepare for publishing'",
@@ -44,10 +47,15 @@
   "devDependencies": {
     "babel-cli": "^6.14.0",
     "babel-core": "^6.14.0",
+    "babel-istanbul": "^0.11.0",
     "babel-jest": "^14.1.0",
+    "babel-preset-es2015-ie": "^6.6.2",
     "babel-preset-react": "^6.11.1",
     "browserify": "^12.0.1",
+    "chai": "^3.5.0",
+    "chai-enzyme": "^0.5.1",
     "connect-modrewrite": "^0.9.0",
+    "enzyme": "^2.4.1",
     "gh-pages": "^0.11.0",
     "gulp": "^3.8.9",
     "gulp-clean-css": "^2.0.12",
@@ -65,16 +73,24 @@
     "gulp-uglify": "^0.3.1",
     "gulp-util": "^3.0.0",
     "jest-cli": "^14.1.0",
+    "mocha": "^3.0.2",
+    "proxyquire": "^1.7.10",
     "react": "^0.14.5",
     "react-addons-test-utils": "^0.14.2",
     "react-dom": "^0.14.2",
     "reactify": "^0.15.2",
+    "sinon": "^1.17.5",
+    "sinon-chai": "^2.8.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^2.1.1"
   },
   "jest": {
+    "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
     "unmockedModulePathPatterns": [
-      "node_modules"
+      "<rootDir>/node_modules/react",
+      "<rootDir>/node_modules/react-dom",
+      "<rootDir>/node_modules/react-addons-test-utils",
+      "<rootDir>/node_modules/fbjs"
     ]
   },
   "dependencies": {

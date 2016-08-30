@@ -9,7 +9,7 @@ describe("Slider", function() {
 	jest.autoMockOff();
 
 	var Carousel = require('../components/Carousel');
-	
+
 	var component, componentInstance;
 
 	function renderComponent (props) {
@@ -28,6 +28,7 @@ describe("Slider", function() {
 
 	beforeEach(function () {
 		renderComponent({});
+
 	});
 
 	afterEach(function() {
@@ -113,7 +114,7 @@ describe("Slider", function() {
 	describe("Selecting", function () {
 		it("Should set the index as selectedItem when clicked", function () {
 			expect(componentInstance.state.selectedItem).toBe(0);
-			
+
 			TestUtils.Simulate.click(componentInstance['item1']);
 			expect(componentInstance.state.selectedItem).toBe(1);
 
@@ -123,7 +124,7 @@ describe("Slider", function() {
 
 		it("Should call a given onSelectItem function when an item is clicked", function () {
 			var mockedFunction = jest.genMockFunction();
-			
+
 			renderComponent({onClickItem: mockedFunction});
 
 			TestUtils.Simulate.click(componentInstance['item1']);
@@ -139,21 +140,21 @@ describe("Slider", function() {
 		it("Should disable the left arrow if we are showing the first item", function () {
 			TestUtils.Simulate.click(componentInstance['item0']);
 			expect(ReactDOM.findDOMNode(componentInstance).querySelectorAll('.carousel-slider .control-prev.control-disabled').length).toBe(1);
-		});	
+		});
 
 		it("Should enable the left arrow if we are showing other than the first item", function () {
 			TestUtils.Simulate.click(componentInstance['item1']);
 			expect(ReactDOM.findDOMNode(componentInstance).querySelectorAll('.carousel-slider .control-prev.control-disabled').length).toBe(0);
-		});	
+		});
 
 		it("Should disable the right arrow if we reach the lastPosition", function () {
 			TestUtils.Simulate.click(componentInstance['item1']);
 			expect(ReactDOM.findDOMNode(componentInstance).querySelectorAll('.carousel-slider .control-next.control-disabled').length).toBe(0);
-			
+
 			TestUtils.Simulate.click(componentInstance['item6']);
 			expect(ReactDOM.findDOMNode(componentInstance).querySelectorAll('.carousel-slider .control-next.control-disabled').length).toBe(1);
-		});		
-	})	
+		});
+	})
 
 	jest.autoMockOn();
 });
