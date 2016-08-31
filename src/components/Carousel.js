@@ -29,8 +29,8 @@ module.exports = React.createClass({
         return {
             showIndicators: true,
             showArrows: true,
-            showStatus:true,
-            showThumbs:true,
+            showStatus: true,
+            showThumbs: true,
             selectedItem: 0,
             axis: 'horizontal'
         }
@@ -44,7 +44,7 @@ module.exports = React.createClass({
         }
     },
 
-    componentWillReceiveProps (props, state) {
+    componentWillReceiveProps (props) {
         if (props.selectedItem !== this.state.selectedItem) {
             this.updateSizes();
             this.setState({
@@ -67,7 +67,7 @@ module.exports = React.createClass({
         window.removeEventListener("DOMContentLoaded", this.updateSizes);
     },
 
-    componentDidMount (nextProps) {
+    componentDidMount () {
         // when the component is rendered we need to calculate
         // the container size to adjust the responsive behaviour
         this.updateSizes();
@@ -79,7 +79,7 @@ module.exports = React.createClass({
     },
 
     updateSizes () {
-        var firstItem = ReactDOM.findDOMNode(this.item0);
+    	var firstItem = ReactDOM.findDOMNode(this.item0);
         this.itemSize = this.isHorizontal ? firstItem.clientWidth : firstItem.clientHeight;
         this.wrapperSize = this.isHorizontal ? this.itemSize * this.props.children.length : this.itemSize;
     },
