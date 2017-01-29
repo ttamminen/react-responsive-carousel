@@ -28,7 +28,8 @@ module.exports = React.createClass({
         autoPlay: React.PropTypes.bool,
         stopOnHover: React.PropTypes.bool,
         interval: React.PropTypes.number,
-        swipeScrollTolerance: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string])
+        swipeScrollTolerance: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]),
+        dynamicHeight: React.PropTypes.bool
     },
 
     getDefaultProps () {
@@ -44,7 +45,8 @@ module.exports = React.createClass({
             autoPlay: false,
             stopOnHover: true,
             interval: 3000,
-            swipeScrollTolerance: 5
+            swipeScrollTolerance: 5,
+            dynamicHeight: false
         }
     },
 
@@ -56,18 +58,29 @@ module.exports = React.createClass({
         }
     },
 
-    componentWillReceiveProps (props) {
-        if (props.selectedItem !== this.state.selectedItem) {
+    componentWillReceiveProps (nextProps) {
+        if (nextProps.selectedItem !== this.state.selectedItem) {
             this.updateSizes();
             this.setState({
-                selectedItem: props.selectedItem
+                selectedItem: nextProps.selectedItem
             });
+        }
+
+        if (nextProps.autoPlay !== this.props.autoPlay) {
+            if (nextProps.autoPlay) {
+                this.setupAutoPlay();
+            } else {
+                this.destroyAutoPlay();
+            }
         }
     },
 
-    componentDidMount (nextProps) {
+    componentDidMount () {
         this.bindEvents();
-        this.setupAutoPlay();
+
+        if (this.props.autoPlay) {
+            this.setupAutoPlay();
+        }
 
         var images = ReactDOM.findDOMNode(this.item0).getElementsByTagName('img');
         var initialImage = images && images[this.props.selectedItem];
@@ -86,26 +99,22 @@ module.exports = React.createClass({
     },
 
     setupAutoPlay () {
-        if (this.props.autoPlay) {
-            this.autoPlay();
+        this.autoPlay();
 
-            if (this.props.stopOnHover) {
-                var carouselWrapper = ReactDOM.findDOMNode(this.carouselWrapper);
-                carouselWrapper.addEventListener('mouseenter', this.stopOnHover);
-                carouselWrapper.addEventListener('mouseleave', this.autoPlay);
-            }
+        if (this.props.stopOnHover) {
+            var carouselWrapper = ReactDOM.findDOMNode(this.carouselWrapper);
+            carouselWrapper.addEventListener('mouseenter', this.stopOnHover);
+            carouselWrapper.addEventListener('mouseleave', this.autoPlay);
         }
     },
 
     destroyAutoPlay () {
-        if (this.props.autoPlay) {
-            this.clearAutoPlay();
+        this.clearAutoPlay();
 
-            if (this.props.stopOnHover) {
-                var carouselWrapper = ReactDOM.findDOMNode(this.carouselWrapper);
-                carouselWrapper.removeEventListener('mousemove', this.stopOnHover);
-                carouselWrapper.removeEventListener('mouseleave', this.autoPlay);
-            }
+        if (this.props.stopOnHover) {
+            var carouselWrapper = ReactDOM.findDOMNode(this.carouselWrapper);
+            carouselWrapper.removeEventListener('mousemove', this.stopOnHover);
+            carouselWrapper.removeEventListener('mouseleave', this.autoPlay);
         }
     },
 
@@ -347,6 +356,27 @@ module.exports = React.createClass({
         );
     },
 
+    getVariableImageHeight (position) {
+        if (this.state.hasMount && this[`item${position}`].getElementsByTagName('img').length > 0) {
+            const image = this[`item${position}`].getElementsByTagName('img')[0];
+
+            if (!image.complete) {
+                // if the image is still loading, the size won't be available so we trigger a new render after it's done
+                const onImageLoad = () => {
+                    this.forceUpdate();
+                    image.removeEventListener('load', onImageLoad);
+                }
+
+                image.addEventListener('load', onImageLoad);
+            }
+
+            const height = this[`item${position}`].getElementsByTagName('img')[0].clientHeight;
+            return height > 0 ? height : null;
+        }
+
+        return null;
+    },
+
     render () {
         var itemsLength = this.props.children.length;
 
@@ -396,6 +426,13 @@ module.exports = React.createClass({
                 onSwipeLeft: this.increment,
                 onSwipeRight: this.decrement
             });
+
+            if (this.props.dynamicHeight) {
+                const itemHeight = this.getVariableImageHeight(this.state.selectedItem);
+                swiperProps.style.height = itemHeight || 'auto';
+                containerStyles.height = itemHeight || 'auto';
+            }
+
         } else {
             merge(swiperProps, {
                 onSwipeUp: this.decrement,
