@@ -1,7 +1,6 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 var klass = require('../cssClasses');
-var has3d = require('../has3d')();
 var outerWidth = require('../dimensions').outerWidth;
 var CSSTranslate = require('../CSSTranslate');
 var Swipe = require('react-easy-swipe');
@@ -13,12 +12,14 @@ module.exports = React.createClass({
 
     propsTypes: {
         children: React.PropTypes.element.isRequired,
+        transitionTime: React.PropTypes.number,
         selectedItem: React.PropTypes.number
     },
 
     getDefaultProps () {
         return {
             selectedItem: 0,
+            transitionTime: 350,
             axis: 'horizontal'
         }
     },
@@ -40,14 +41,6 @@ module.exports = React.createClass({
         }
     },
 
-    componentWillMount() {
-        // as the widths are calculated, we need to resize
-        // the carousel when the window is resized
-        window.addEventListener("resize", this.updateStatics);
-        // issue #2 - image loading smaller
-        window.addEventListener("DOMContentLoaded", this.updateStatics);
-    },
-
     componentWillUnmount() {
         // removing listeners
         window.removeEventListener("resize", this.updateStatics);
@@ -55,12 +48,18 @@ module.exports = React.createClass({
     },
 
     componentDidMount (nextProps) {
-        // when the component is rendered we need to calculate
-        // the container size to adjust the responsive behaviour
-        this.updateStatics();
+        // as the widths are calculated, we need to resize
+        // the carousel when the window is resized
+        window.addEventListener("resize", this.updateStatics);
+        // issue #2 - image loading smaller
+        window.addEventListener("DOMContentLoaded", this.updateStatics);
 
         var defaultImg = ReactDOM.findDOMNode(this.thumb0).getElementsByTagName('img')[0];
         defaultImg.addEventListener('load', this.setMountState);
+
+        // when the component is rendered we need to calculate
+        // the container size to adjust the responsive behaviour
+        this.updateStatics();
     },
 
     updateStatics () {
@@ -214,14 +213,22 @@ module.exports = React.createClass({
 
         var transformProp = CSSTranslate(currentPosition, this.props.axis);
 
+        var transitionTime = this.props.transitionTime + 'ms';
+
         itemListStyles = {
-            'WebkitTransform': transformProp,
-               'MozTransform': transformProp,
-                'MsTransform': transformProp,
-                 'OTransform': transformProp,
-                  'transform': transformProp,
-                'msTransform': transformProp
-        }
+                    'WebkitTransform': transformProp,
+                       'MozTransform': transformProp,
+                        'MsTransform': transformProp,
+                         'OTransform': transformProp,
+                          'transform': transformProp,
+                        'msTransform': transformProp,
+           'WebkitTransitionDuration': transitionTime,
+              'MozTransitionDuration': transitionTime,
+               'MsTransitionDuration': transitionTime,
+                'OTransitionDuration': transitionTime,
+                 'transitionDuration': transitionTime,
+               'msTransitionDuration': transitionTime
+        };
 
         return (
             <div className={klass.CAROUSEL(false)}>
